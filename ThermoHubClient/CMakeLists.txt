@@ -32,7 +32,7 @@ target_link_libraries(ThermoHubClient
 #    PUBLIC ThermoFun::ThermoFun
     PUBLIC jsonarango
     PUBLIC velocypack
-    PUBLIC boost_regex
+    PUBLIC Boost::regex
     )
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
