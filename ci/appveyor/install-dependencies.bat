@@ -39,7 +39,7 @@ echo
 
 echo git clone jsonarango...
 git clone https://bitbucket.org/gems4/jsonarango.git
-cd jsonio
+cd jsonarango
 
 echo "Configuring..."
 cmake -G"Visual Studio 15 2017" -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" .. -A x64 -S . -B build
