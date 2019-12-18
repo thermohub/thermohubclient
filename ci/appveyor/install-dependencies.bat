@@ -23,6 +23,8 @@ git clone https://github.com/arangodb/velocypack.git
 cd velo*
 
 echo Setting linker settings from /MT to /MD
+echo "Fart location: %FART%"
+echo "Curent directory: %CD%"
 %FART% "%CD%\cmake\Modules\AR_CompilerSettings.cmake" MTd MDd
 %FART% "%CD%\cmake\Modules\AR_CompilerSettings.cmake" MT MD
 
