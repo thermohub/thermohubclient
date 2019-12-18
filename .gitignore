@@ -34,7 +34,7 @@
 .vscode
 
 # Build
-build*
+build/
 
 *.ipynb*
 environment.yml
