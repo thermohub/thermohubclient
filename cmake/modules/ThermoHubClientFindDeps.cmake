@@ -22,9 +22,6 @@ if(NOT JSONARANGO_LIB)
   message(FATAL_ERROR "jsonarango library not found")
 endif()
 
-find_package(ThermoFun REQUIRED)
-
-
 # Find pybind11 library (if needed)
 if(THERMOHUBCLIENT_BUILD_PYTHON)
     find_package(pybind11 REQUIRED)
