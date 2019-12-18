@@ -33,22 +33,23 @@ cmake -G"Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=Release -DBuildTools=OFF -DBu
 echo "Building..."
 cmake --build build --config %CONFIGURATION% --target install
 
-echo
-echo ******                         ******
-echo ****** Compiling JSONARNAGO    ******
-echo ******                         ******
-echo
-
-echo git clone jsonarango...
-git clone https://bitbucket.org/gems4/jsonarango.git
-cd jsonarango
-
-echo "Configuring..."
-cmake -G"Visual Studio 15 2017" -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" .. -A x64 -S . -B build
-echo "Building..."
-cmake --build build --config %CONFIGURATION% --target install
-
-cd ..\..\..
-
-REM Housekeeping
-rd /s /q tmp_velo
+REM echo
+REM echo ******                         ******
+REM echo ****** Compiling JSONARNAGO    ******
+REM echo ******                         ******
+REM echo
+REM 
+REM echo git clone jsonarango...
+REM git clone https://bitbucket.org/gems4/jsonarango.git
+REM cd jsonarango
+REM 
+REM echo "Configuring..."
+REM cmake -G"Visual Studio 15 2017" -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" .. -A x64 -S . -B build
+REM echo "Building..."
+REM cmake --build build --config %CONFIGURATION% --target install
+REM 
+REM cd ..\..\..
+REM 
+REM REM Housekeeping
+REM rd /s /q tmp_velo
+REM 
