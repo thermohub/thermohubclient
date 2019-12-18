@@ -27,6 +27,14 @@
 *.lib
 
 # Executables
-*.exe
+#*.exe
 *.out
 *.app
+
+.vscode
+
+# Build
+build/
+
+*.ipynb*
+environment.yml
