@@ -22,10 +22,9 @@ init:
 
 install:
   - call ci\appveyor\install.bat
-  - call ci\appveyor\install-dependencies.bat
+#  - call ci\appveyor\install-dependencies.bat
 
 build_script:
-  - 'set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%'
   - call ci\appveyor\build.bat
 
 test_script:
