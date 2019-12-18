@@ -48,7 +48,7 @@ REM cmake -G"Visual Studio 15 2017" -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_BUILD_TYPE=R
 REM echo "Building..."
 REM cmake --build build --config %CONFIGURATION% --target install
 REM 
-cd ..\..\..
+cd ..\..
 echo "Curent directory: %CD%"
 REM 
 REM REM Housekeeping
