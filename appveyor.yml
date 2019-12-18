@@ -25,7 +25,7 @@ install:
   - call ci\appveyor\install-dependencies.bat
 
 build_script:
-#  - call ci\appveyor\build.bat
+  - call ci\appveyor\build.bat
 
 test_script:
   - conda list
