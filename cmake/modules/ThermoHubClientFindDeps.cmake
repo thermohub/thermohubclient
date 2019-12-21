@@ -1,4 +1,4 @@
-find_package(Boost COMPONENTS regex REQUIRED)
+#find_package(Boost COMPONENTS regex REQUIRED)
 
 #find_package(curl REQUIRED)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)

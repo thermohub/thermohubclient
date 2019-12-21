@@ -1,8 +1,7 @@
 #!/bin/bash
 # Installing dependencies needed to build thermofun on (k)ubuntu linux 16.04 or 18.04
 
-sudo apt-get install -y libcurl4-openssl-dev libboost-all-dev
-
+sudo apt-get install -y libcurl4-openssl-dev
 # Uncomment what is necessary to reinstall by force 
 #sudo rm -f /usr/local/lib/libvelocypack.a
 #sudo rm -f /usr/local/lib/libjsonarango.a

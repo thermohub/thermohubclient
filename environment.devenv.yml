@@ -3,21 +3,16 @@ name: thermohubclient
 {% set python_version = os.environ.get("PY_VER", "3.7") %}
 
 dependencies:
-  - pip
   - gxx_linux-64=7.3.0  # [linux]
   - cmake>=3.13
-  - ninja
+  - ninja # [unix]
+  - make  # [win]
   - git
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
-  - boost
   - curl
   - python={{ python_version }}
-  - pip:
-    - mkdocs
-    - mkdocs-material
-    - mkdocs-macros-plugin
 
 environment:
 
