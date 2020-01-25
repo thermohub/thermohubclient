@@ -12,6 +12,8 @@ dependencies:
   - pybind11
   - nlohmann_json
   - curl
+  - velocypack
+  - jsonarango
   - python={{ python_version }}
 
 environment:

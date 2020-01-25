@@ -1,4 +1,4 @@
-// Copyright (C) 2019 G. Dan Miron
+// Copyright (C) 2020 G. D. Miron, D. A. Kulik, S. V Dmytrieva
 // 
 // thermohubclient is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by

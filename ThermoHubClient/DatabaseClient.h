@@ -1,4 +1,4 @@
-// Copyright (C) 2019 G. Dan Miron
+// Copyright (C) 2020 G. D. Miron, D. A. Kulik, S. V Dmytrieva
 //
 // thermohubclient is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -16,6 +16,7 @@
 // C++ includes
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace ThermoHubClient
 {
@@ -33,7 +34,7 @@ public:
     /// Destroy this instance
     virtual ~DatabaseClient();
 
-        /**
+     /**
      * @brief Get the  Database
      * 
      * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
@@ -42,12 +43,35 @@ public:
     auto getDatabase(const std::string &thermodataset) const -> const std::string&;
 
     /**
-     * @brief Save Database to json file
+     * @brief Get the Database object
      * 
-     * @param thermodataset 
-     * @param fileName name of the local file (default relative path Resources/databases/)
+     * @param thermodataset symbol of thermodataset from the database
+     * @param elements list of elements to filter selected data
+     * @return const std::string& 
      */
-    auto saveDatabase(const std::string &thermodataset, const std::string &fileName) -> void;
+    //auto getDatabase(const std::string &thermodataset, const std::vector<std::string>& elements) const -> const std::string&;
+
+    /**
+     * @brief Save Database to json file (<thermodataset>-thermofun.json)
+     * 
+     * @param thermodataset symbol of thermodataset from the database
+     */
+    auto saveDatabase(const std::string &thermodataset) -> void;
+
+    /**
+     * @brief Save Database to json file (<thermodataset>-thermofun.json)
+     * 
+     * @param thermodataset symbol of thermodataset from the database
+     * @param elements list of elements to filter selected data
+     */
+    //auto saveDatabase(const std::string &thermodataset, const std::vector<std::string>& elements) -> void;
+
+    /**
+     * @brief list of available ThermoDataSets
+     * 
+     * @return const std::vector<std::string>& 
+     */
+    auto availableThermoDataSets() -> std::vector<std::string>;
 
 private:
     struct Impl;
