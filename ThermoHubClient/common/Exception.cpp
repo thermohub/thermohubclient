@@ -1,4 +1,5 @@
 #include "Exception.h"
+#include <algorithm>
 
 namespace ThermoHubClient {
 namespace internal {
