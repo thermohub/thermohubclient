@@ -17,7 +17,7 @@ conda update -q conda
 conda info -a
 conda devenv
 source activate thermohubclient
-./conda-install-dependencies.sh
+#./conda-install-dependencies.sh
 mkdir build
 cd build
 python_path=$(which python)

@@ -22,7 +22,7 @@ init:
 
 install:
   - call ci\appveyor\install.bat
-  - call ci\appveyor\install-dependencies.bat
+#  - call ci\appveyor\install-dependencies.bat
 
 build_script:
   - call ci\appveyor\build.bat
