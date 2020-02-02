@@ -18,7 +18,7 @@ include(CondaAware)
 
 # Define which types of libraries to build
 option(THERMOHUBCLIENT_BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(THERMOHUBCLIENT_BUILD_SHARED_LIBS "Build static libraries." ON)
+option(THERMOHUBCLIENT_BUILD_STATIC_LIBS "Build static libraries." ON)
 option(THERMOHUBCLIENT_BUILD_PYTHON "Build the python wrappers and python package thermohubclient." ON)
 #option(REFRESH_THIRDPARTY "Refresh thirdparty libraries." OFF)
 

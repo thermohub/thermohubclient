@@ -1,4 +1,4 @@
-// Copyright (C) 2019 G. Dan Miron
+// Copyright (C) 2020 G. D. Miron, D. A. Kulik, S. V Dmytrieva
 // 
 // thermohubclient is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -28,8 +28,15 @@ void exportDatabaseClient(py::module& m)
     py::class_<DatabaseClient>(m, "DatabaseClient")
         .def(py::init<>())
         .def(py::init<const std::string&>())
-        .def("getDatabase", &DatabaseClient::getDatabase,"Get database JSON string for a given ThermoDataSet symbol")
-        .def("saveDatabase", &DatabaseClient::saveDatabase, "Save thermodataset database to json file", pybind11::arg("thermodataset"), pybind11::arg("fileName"))
+        .def("getDatabase", (const std::string& (DatabaseClient::*)(const std::string&) const) &DatabaseClient::getDatabase,
+                  "Get database JSON string for a given ThermoDataSet symbol", "thermodataset")
+        // .def("getDatabase", (const std::string& (DatabaseClient::*)(const std::string&, const std::vector<std::string>&) const) &DatabaseClient::getDatabase,
+                //   "Get database JSON string for a given ThermoDataSet symbol and a list of elements", "thermodataset", "elements"/*={}*/)
+        .def("saveDatabase", (void (DatabaseClient::*)(const std::string&)) &DatabaseClient::saveDatabase,
+                  "Save thermodataset database to json file (name of thermodataset)", "thermodataset")
+        // .def("saveDatabase", (void (DatabaseClient::*)(const std::string&, const std::vector<std::string>&)) &DatabaseClient::saveDatabase,
+                //   "Save thermodataset, filtered with a given list of elements to json file (name of thermodataset)", "thermodataset", "elements"/*={}*/)
+        .def("availableThermoDataSets", &DatabaseClient::availableThermoDataSets,"list of available ThermoDataSets")
         ;
 }
 }

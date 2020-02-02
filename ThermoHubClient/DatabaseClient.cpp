@@ -1,25 +1,26 @@
-// Copyright (C) 2019 G. Dan Miron
-// 
+// Copyright (C) 2020 G. D. Miron, D. A. Kulik, S. V Dmytrieva
+//
 // thermohubclient is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // thermohubclient is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with thermohubclient. If not, see <http://www.gnu.org/licenses/>.
 
-
 #include "DatabaseClient.h"
 #include "AqlQueries.h"
+#include "formulaparser/FormulaParser.h"
 
 // C++ includes
-#include <boost/regex.hpp>
+#include <regex>
 #include <fstream>
+#include <sstream>
 
 // jsonarango
 #include "jsonarango/arangocollection.h"
@@ -37,6 +38,13 @@ const arangocpp::ArangoDBConnection default_data(arangocpp::ArangoDBConnection::
                                                  "funrem",                                              // username
                                                  "ThermoFun@Remote-ThermoHub-Server",                   // password
                                                  "hub_main");                                           // database name
+void printData(const std::string &title, const std::vector<std::string> &values)
+{
+    std::cout << title << std::endl;
+    for (const auto &jsondata : values)
+        std::cout << jsondata << std::endl;
+    std::cout << std::endl;
+}
 
 struct DatabaseClient::Impl
 {
@@ -46,6 +54,8 @@ struct DatabaseClient::Impl
     std::string queriedThermoDataSet;
 
     std::vector<std::string> recjsonValues;
+
+    int json_indent = 2;
 
     // Define call back function
     arangocpp::FetchingDocumentCallback collect_results_fn;
@@ -62,126 +72,204 @@ struct DatabaseClient::Impl
     {
         setfunctions();
 
-        // Create database connection
-        arangocpp::ArangoDBCollectionAPI connect{default_data};
+        try
+        {
+            // Create database connection
+            arangocpp::ArangoDBCollectionAPI connect{default_data};
+        }
+        catch (arangocpp::arango_exception &e)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient" << e.header() << std::endl
+                   << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+        catch (std::exception &e)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " std::exception" << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+        catch (...)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " unknown exception" << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
     }
 
     Impl(const std::string &connection_configuration_file)
     {
         setfunctions();
 
-        // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig(connection_configuration_file);
-        // Create database connection
-        arangocpp::ArangoDBCollectionAPI connect{data};
-        dbClient = std::make_shared<arangocpp::ArangoDBCollectionAPI>(connect);
+        try
+        {
+            // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
+            arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig(connection_configuration_file);
+            // Create database connection
+            arangocpp::ArangoDBCollectionAPI connect{data};
+            dbClient = std::make_shared<arangocpp::ArangoDBCollectionAPI>(connect);
+        }
+        catch (arangocpp::arango_exception &e)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient" << e.header() << std::endl
+                   << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+        catch (std::exception &e)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " std::exception " << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+        catch (...)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " unknown exception " << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
     }
 
     auto idThermoDataSetFromSymbol(const std::string &symbol) -> std::string
     {
-        try
-        {
-            recjsonValues.clear();
+        recjsonValues.clear();
 
-            std::string query = "FOR u  IN thermodatasets ";
-            query += "FILTER u.properties.symbol == \"" + symbol + "\" ";
-            query += "RETURN u._id";
+        std::string query = "FOR u IN thermodatasets ";
+        query += "FILTER u.properties.symbol == \"" + symbol + "\" ";
+        query += "RETURN u._id";
 
-            arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
-            dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
+        arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
+        dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
 
-            for (auto &i : recjsonValues)
-                while (std::find(i.begin(), i.end(), '"') != i.end())
-                    i.erase(std::find(i.begin(), i.end(), '"'));
+        for (auto &i : recjsonValues)
+            while (std::find(i.begin(), i.end(), '"') != i.end())
+                i.erase(std::find(i.begin(), i.end(), '"'));
 
-            if (recjsonValues.size() == 0)
-                return "";
-            else
-                return recjsonValues[0];
-        }
-        catch (arangocpp::arango_exception &e)
-        {
-            std::cout << "TDBJsonDocument API" << e.header() << e.what() << std::endl;
-        }
-        catch (std::exception &e)
-        {
-            std::cout << "TDBJsonDocument API"
-                      << " std::exception" << e.what() << std::endl;
-        }
-        catch (...)
-        {
-            std::cout << "TDBJsonDocument API"
-                      << " unknown exception" << std::endl;
-        }
+        if (recjsonValues.size() == 0)
+            return "";
+        else
+            return recjsonValues[0];
     }
 
     auto queryThermoDataSet(const std::string &idThermoDataSet) -> void
     {
+        recjsonValues.clear();
         try
         {
-            recjsonValues.clear();
-
             arangocpp::ArangoDBQuery aqlquery(aql_thermofun_database_from_thermodataset, arangocpp::ArangoDBQuery::AQL);
             std::string bind_value = "{\"idThermoDataSet\": \"" + idThermoDataSet + "\"}";
             aqlquery.setBindVars(bind_value);
             dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
 
             // removing NULL
-            boost::regex e("(?<=,)[^,\n]+(?=null,)");
-            auto result = boost::regex_replace(recjsonValues[0], e, "");
-            e = boost::regex("null,");
-            queriedThermoDataSet =  boost::regex_replace(result, e, "");
+            std::regex e("(?!,)[^,\n]+(?=null,)");
+            auto result = std::regex_replace(recjsonValues[0], e, "");
+            e = std::regex("null,");
+            queriedThermoDataSet = std::regex_replace(result, e, "");
         }
         catch (arangocpp::arango_exception &e)
         {
-            std::cout << "TDBJsonDocument API" << e.header() << e.what() << std::endl;
+            std::stringstream buffer;
+            buffer << "ThermoHubClient" << e.header() << std::endl
+                   << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
         }
         catch (std::exception &e)
         {
-            std::cout << "TDBJsonDocument API"
-                      << " std::exception" << e.what() << std::endl;
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " std::exception " << e.what() << std::endl
+                   << std::endl;
+            throw std::runtime_error(buffer.str());
         }
         catch (...)
         {
-            std::cout << "TDBJsonDocument API"
-                      << " unknown exception" << std::endl;
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " unknown exception " << std::endl;
+            throw std::runtime_error(buffer.str());
         }
     }
 
     auto getDatabase(const std::string &thermodataset) -> const std::string &
     {
-        try
-        {
-            std::string idThermoDataSet = idThermoDataSetFromSymbol(thermodataset);
-            if (idThermoDataSet == "")
-                throw std::runtime_error("Thermodataset with symbol " + thermodataset + " was not found.");
-            queryThermoDataSet(idThermoDataSet);
-            return queriedThermoDataSet;
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+        std::string idThermoDataSet = idThermoDataSetFromSymbol(thermodataset);
+
+        if (idThermoDataSet == "")
+            throw std::runtime_error("Thermodataset with symbol " + thermodataset + " was not found.");
+        queryThermoDataSet(idThermoDataSet);
+        // select with elements - remove elements, substances and reactions
+        return queriedThermoDataSet;
     }
 
-    auto saveDatabase(const std::string &thermodataset, const std::string &fileName) -> void
+    auto saveDatabase(const std::string &thermodataset) -> void
     {
         try
         {
+            std::string fileName = thermodataset + "-thermofun.json";
             std::ofstream file(fileName);
             json j = json::parse(getDatabase(thermodataset));
-            file << j.dump(2);
+            file << j.dump(json_indent);
         }
         catch (json::exception &ex)
         {
             // output exception information
-            std::cout << "message: " << ex.what() << '\n'
-                      << "exception id: " << ex.id << std::endl;
+            std::stringstream buffer;
+            buffer << "message: " << ex.what() << '\n'
+                   << "exception id: " << ex.id << std::endl;
+            throw std::runtime_error(buffer.str());
         }
-        catch (const std::exception &e)
+        catch (std::exception &e)
         {
-            std::cerr << e.what() << '\n';
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " std::exception " << e.what() << std::endl
+                   << std::endl;
+            throw std::runtime_error(buffer.str());
         }
+        catch (...)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " unknown exception " << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+    }
+
+    auto availableThermoDataSets() -> std::vector<std::string>
+    {
+        recjsonValues.clear();
+
+        std::string query = "FOR u IN thermodatasets RETURN u.properties.symbol";
+        arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
+        dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
+        //    printData( "Select records by AQL query", recjsonValues );
+
+        return recjsonValues;
+    }
+
+    auto testElementsInFormula(const std::string &formula, const std::vector<std::string> &elements) -> bool
+    {
+        FormulaParser::ChemicalFormulaParser parser;
+
+        for (auto formelm : parser.parse(formula))
+        {
+            auto itr = elements.begin();
+            while (itr != elements.end())
+            {
+                if (formelm.symbol == *itr)
+                    break;
+                itr++;
+            }
+            if (itr == elements.end())
+                return false;
+        }
+        return true;
     }
 };
 
@@ -210,9 +298,24 @@ auto DatabaseClient::getDatabase(const std::string &thermodataset) const -> cons
     return pimpl->getDatabase(thermodataset);
 }
 
-auto DatabaseClient::saveDatabase(const std::string &thermodataset, const std::string &fileName) -> void
+// auto DatabaseClient::getDatabase(const std::string &thermodataset, const std::vector<std::string> &elements) const -> const std::string &
+// {
+    // return pimpl->getDatabase(thermodataset, elements);
+// }
+
+auto DatabaseClient::saveDatabase(const std::string &thermodataset) -> void
 {
-    pimpl->saveDatabase(thermodataset, fileName);
+    pimpl->saveDatabase(thermodataset);
+}
+
+// auto DatabaseClient::saveDatabase(const std::string &thermodataset, const std::vector<std::string> &elements) -> void
+// {
+    // pimpl->saveDatabase(thermodataset, elements);
+// }
+
+auto DatabaseClient::availableThermoDataSets() -> std::vector<std::string>
+{
+    return pimpl->availableThermoDataSets();
 }
 
 } // namespace ThermoHubClient
