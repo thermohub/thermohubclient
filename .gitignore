@@ -40,3 +40,5 @@ build/
 environment.yml
 aq17-subset-thermofun*
 aq17-thermofun*
+*pycache*
+*pytest_cache*
