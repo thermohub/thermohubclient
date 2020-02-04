@@ -8,5 +8,7 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 
 echo "Configuring..."
 cmake -G"Visual Studio 15 2017" -DTHERMOHUBCLIENT_PYTHON_INSTALL_PREFIX:PATH="%CONDA_PREFIX%" -A x64 -S . -B build
+if errorlevel 1 exit 1
 echo "Building..."
 cmake --build build --config %CONFIGURATION% --target install
+if errorlevel 1 exit 1

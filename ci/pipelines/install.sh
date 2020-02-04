@@ -1,3 +1,9 @@
+set -u
+ferr(){
+    echo "$@"
+    exit 1
+}
+
 if [ ! -f $HOME/miniconda/bin/conda ]; then
     echo "Downloading and installing miniconda"
     wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
