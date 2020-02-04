@@ -58,10 +58,11 @@ void exportDatabaseClientOptions(py::module& m)
 {
     py::class_<DatabaseClientOptions>(m, "DatabaseClientOptions")
         .def(py::init<>())
-        .def_readwrite("json_indent", &DatabaseClientOptions::json_indent)
-        .def_readwrite("filterCharge", &DatabaseClientOptions::filterCharge)
-        .def_readwrite("databaseFileSuffix", &DatabaseClientOptions::databaseFileSuffix)
-        .def_readwrite("subsetFileSuffix", &DatabaseClientOptions::subsetFileSuffix)
+        .def_readwrite("json_indent", &DatabaseClientOptions::json_indent, "number of spaces in the json indentation")
+        .def_readwrite("json_indent_get", &DatabaseClientOptions::json_indent_get, "number of spaces in the json indentation (in string returned by the get functions)")
+        .def_readwrite("filterCharge", &DatabaseClientOptions::filterCharge, "filter charge when selecting data by elements")
+        .def_readwrite("databaseFileSuffix", &DatabaseClientOptions::databaseFileSuffix, "database filename suffix")
+        .def_readwrite("subsetFileSuffix", &DatabaseClientOptions::subsetFileSuffix, "subset database filename suffix")
         ;
 }
 }
