@@ -25,6 +25,8 @@ struct DatabaseClientOptions
 {
     // number of spaces in the json indentation
     int json_indent = 2;
+    // number of spaces in the json indentation (in string returned by the get functions)
+    int json_indent_get = -1;
     // filter charge when selecting data by elements
     bool filterCharge = false;
     // database filename suffix

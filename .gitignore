@@ -38,3 +38,5 @@ build/
 
 *.ipynb*
 environment.yml
+aq17-subset-thermofun*
+aq17-thermofun*

@@ -32,12 +32,11 @@ using json = nlohmann::json;
 
 namespace ThermoHubClient
 {
-
 // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
 const arangocpp::ArangoDBConnection default_data(arangocpp::ArangoDBConnection::remote_server_endpoint, // server address
-                                                 "funrem",                                              // username
-                                                 "ThermoFun@Remote-ThermoHub-Server",                   // password
-                                                 "hub_main");                                           // database name
+                                                 "funrem",                                              
+                                                 "ThermoFun@Remote-ThermoHub-Server",                   
+                                                 "hub_main");                                           
 void printData(const std::string &title, const std::vector<std::string> &values)
 {
     std::cout << title << std::endl;
@@ -76,6 +75,7 @@ struct DatabaseClient::Impl
         {
             // Create database connection
             arangocpp::ArangoDBCollectionAPI connect{default_data};
+            dbClient = std::make_shared<arangocpp::ArangoDBCollectionAPI>(connect);
         }
         catch (arangocpp::arango_exception &e)
         {
@@ -139,21 +139,45 @@ struct DatabaseClient::Impl
     {
         recjsonValues.clear();
 
-        std::string query = "FOR u IN thermodatasets ";
-        query += "FILTER u.properties.symbol == \"" + symbol + "\" ";
-        query += "RETURN u._id";
+        try
+        {
+            std::string query = "FOR u IN thermodatasets ";
+            query += "FILTER u.properties.symbol == \"" + symbol + "\" ";
+            query += "RETURN u._id";
 
-        arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
-        dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
+            arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
+            dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
 
-        for (auto &i : recjsonValues)
-            while (std::find(i.begin(), i.end(), '"') != i.end())
-                i.erase(std::find(i.begin(), i.end(), '"'));
+            for (auto &i : recjsonValues)
+                while (std::find(i.begin(), i.end(), '"') != i.end())
+                    i.erase(std::find(i.begin(), i.end(), '"'));
 
-        if (recjsonValues.size() == 0)
-            return "";
-        else
-            return recjsonValues[0];
+            if (recjsonValues.size() == 0)
+                return "";
+            else
+                return recjsonValues[0];
+        }
+        catch (arangocpp::arango_exception &e)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient" << e.header() << std::endl
+                   << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+        catch (std::exception &e)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " std::exception " << e.what() << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
+        catch (...)
+        {
+            std::stringstream buffer;
+            buffer << "ThermoHubClient"
+                   << " unknown exception " << std::endl;
+            throw std::runtime_error(buffer.str());
+        }
     }
 
     auto makeBindList(const std::vector<std::string> &list, const std::string &name, std::string &query) -> std::string
@@ -202,11 +226,11 @@ struct DatabaseClient::Impl
 
             arangocpp::ArangoDBQuery aqlquery(query_, arangocpp::ArangoDBQuery::AQL);
 
-            //bind_value ="{ \"idThermoDataSet \":  \"thermodatasets/mines16;2:TDS_GEM;0 \" ,  \"substancesList \":  [],  \"classesOfSubstance \":  [],  \"aggregateStates \":  []}";
-
-            std::cout << bind_value << std::endl;
+            std::string options = "{ \"maxPlans\" : 1, "
+                              "  \"optimizer\" : { \"rules\" : [ \"-all\", \"+remove-unnecessary-filters\" ]  } } ";
 
             aqlquery.setBindVars(bind_value);
+            aqlquery.setOptions(options);
             dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
 
             // removing NULL
@@ -275,9 +299,19 @@ struct DatabaseClient::Impl
         return true;
     }
 
-    auto selectDataContainingElements(const std::vector<std::string> &elements) -> void
+    auto selectDataContainingElements(const std::vector<std::string> &elems) -> void
     {
+        std::vector<std::string> elements = elems;
         json jThermoDataSet = json::parse(resultThermoDataSet);
+        if (elements.size() == 0)
+        {
+            resultThermoDataSet = jThermoDataSet.dump(options.json_indent);
+            return;
+        }
+
+        if (!options.filterCharge) // charge is considered by default if not filtered
+            elements.push_back("Zz");
+
         json jElements = jThermoDataSet["elements"];
         for (auto it = jElements.begin(); it != jElements.end(); ++it)
         {
@@ -370,7 +404,7 @@ struct DatabaseClient::Impl
 
         std::string query = "FOR u IN thermodatasets \n";
         query += "FILTER u.properties.symbol == \"" + thermodataset + "\"";
-        query += "FOR e, b IN 1..1 INBOUND u basis RETURN e.properties.symbol";
+        query += "FOR e, b IN 1..1 INBOUND u basis SORT e.properties.symbol RETURN e.properties.symbol";
         arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
         dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
         //    printData( "Select records by AQL query", recjsonValues );
@@ -384,7 +418,7 @@ struct DatabaseClient::Impl
 
         std::string query = "FOR u IN thermodatasets \n";
         query += "FILTER u.properties.symbol == \"" + thermodataset + "\"";
-        query += "FOR s, p IN 1..1 INBOUND u pulls RETURN s.properties.symbol";
+        query += "FOR s, p IN 1..1 INBOUND u pulls SORT s.properties.symbol RETURN s.properties.symbol";
         arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
         dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
         //    printData( "Select records by AQL query", recjsonValues );
@@ -399,7 +433,7 @@ struct DatabaseClient::Impl
         std::string query = "FOR u IN thermodatasets \n";
         query += "FILTER u.properties.symbol == \"" + thermodataset + "\"";
         query += "FOR s, p IN 1..1 INBOUND u pulls ";
-        query += "FOR r, t IN 1..1 OUTBOUND s takes RETURN r.properties.symbol";
+        query += "FOR r, t IN 1..1 OUTBOUND s takes SORT r.properties.symbol RETURN r.properties.symbol";
         arangocpp::ArangoDBQuery aqlquery(query, arangocpp::ArangoDBQuery::AQL);
         dbClient->selectQuery("thermodatasets", aqlquery, collect_results_fn);
         //    printData( "Select records by AQL query", recjsonValues );
@@ -458,11 +492,13 @@ DatabaseClient::~DatabaseClient()
 
 auto DatabaseClient::getDatabase(const std::string &thermodataset) const -> const std::string &
 {
+    pimpl->options.json_indent = pimpl->options.json_indent_get;
     return pimpl->getDatabase(thermodataset, {}, {}, {}, {});
 }
 
 auto DatabaseClient::getDatabaseContainingElements(const std::string &thermodataset, const std::vector<std::string> &elements) const -> const std::string &
 {
+    pimpl->options.json_indent = pimpl->options.json_indent_get;
     return pimpl->getDatabase(thermodataset, elements, {}, {}, {});
 }
 
@@ -471,11 +507,12 @@ auto DatabaseClient::getDatabaseSubset(const std::string &thermodataset, const s
                                        const std::vector<std::string> &classesOfSubstance,
                                        const std::vector<std::string> &aggregateStates) const -> const std::string &
 {
+    pimpl->options.json_indent = pimpl->options.json_indent_get;
     return pimpl->getDatabase(thermodataset, elements, substances, classesOfSubstance, aggregateStates);
 }
 
 auto DatabaseClient::saveDatabase(const std::string &thermodataset) -> void
-{   
+{
     pimpl->getDatabase(thermodataset, {}, {}, {}, {});
     pimpl->saveDatabase(thermodataset + pimpl->options.databaseFileSuffix + ".json");
 }
