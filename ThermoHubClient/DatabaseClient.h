@@ -21,12 +21,25 @@
 namespace ThermoHubClient
 {
 
+struct DatabaseClientOptions
+{
+    // number of spaces in the json indentation
+    int json_indent = 2;
+    // filter charge when selecting data by elements
+    bool filterCharge = false;
+    // database filename suffix
+    std::string databaseFileSuffix = "-thermofun";
+    // subset database file suffix, when saving a subset of a ThermoDataSet based on a
+    // list of elements, substances, aggregate state
+    std::string subsetFileSuffix = "-subset-thermofun";
+};
+
 class DatabaseClient
 {
 public:
     DatabaseClient();
 
-    DatabaseClient(const std::string& connection_configuration);
+    DatabaseClient(const std::string &connection_configuration);
 
     /// Assign a DatabaseClient instance to this instance
     auto operator=(DatabaseClient other) -> DatabaseClient &;
@@ -34,13 +47,28 @@ public:
     /// Destroy this instance
     virtual ~DatabaseClient();
 
-     /**
+    /**
      * @brief Get the  Database
      * 
      * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
-     * @return JSON string {...}  
+     * @return const std::string& JSON string {...} 
      */
-    auto getDatabase(const std::string &thermodataset) const -> const std::string&;
+    auto getDatabase(const std::string &thermodataset) const -> const std::string &;
+
+    /**
+     * @brief Get the Database Subset JSON string
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
+     * @param elements vector of elements symbols (optional)
+     * @param substances vector of substances symbols (optional)
+     * @param classes vector of substances classes (optional)
+     * @param aggregatestates vector of substances aggregate states (optional)
+     * @return const std::string& JSON string {...} 
+     */
+    auto getDatabaseSubset(const std::string &thermodataset, const std::vector<std::string> &elements = {},
+                           const std::vector<std::string> &substances = {},
+                           const std::vector<std::string> &classesOfSubstance = {},
+                           const std::vector<std::string> &aggregateStates = {}) const -> const std::string &;
 
     /**
      * @brief Get the Database object
@@ -49,7 +77,7 @@ public:
      * @param elements list of elements to filter selected data
      * @return const std::string& 
      */
-    //auto getDatabase(const std::string &thermodataset, const std::vector<std::string>& elements) const -> const std::string&;
+    auto getDatabaseContainingElements(const std::string &thermodataset, const std::vector<std::string> &elements) const -> const std::string &;
 
     /**
      * @brief Save Database to json file (<thermodataset>-thermofun.json)
@@ -64,14 +92,67 @@ public:
      * @param thermodataset symbol of thermodataset from the database
      * @param elements list of elements to filter selected data
      */
-    //auto saveDatabase(const std::string &thermodataset, const std::vector<std::string>& elements) -> void;
+    auto saveDatabaseContainingElements(const std::string &thermodataset, const std::vector<std::string> &elements) -> void;
 
+    /**
+     * @brief Save Database subset to json file (<thermodataset>-subset-thermofun.json)
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
+     * @param elements vector of elements symbols (optional)
+     * @param substances vector of substances symbols (optional)
+     * @param classes vector of substances classes (optional)
+     * @param aggregatestates vector of substances aggregate states (optional)
+     */
+    auto saveDatabaseSubset(const std::string &thermodataset, const std::vector<std::string> &elements = {},
+                            const std::vector<std::string> &substances = {},
+                            const std::vector<std::string> &classesOfSubstance = {},
+                            const std::vector<std::string> &aggregateStates = {}) -> void;
     /**
      * @brief list of available ThermoDataSets
      * 
-     * @return const std::vector<std::string>& 
+     * @return std::vector<std::string> 
      */
     auto availableThermoDataSets() -> std::vector<std::string>;
+
+    /**
+     * @brief list of substance classes in a ThermoDataSet
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote) 
+     * @return std::vector<std::string> 
+     */
+    auto substanceClassesInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>;
+
+    /**
+     * @brief list of substance aggregate states in a ThermoDataSet
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
+     * @return std::vector<std::string> 
+     */
+    auto substanceAggregateStatesInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>;
+
+    /**
+     * @brief list of elements in a ThermoDataSet
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
+     * @return std::vector<std::string> 
+     */
+    auto elementsInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>;
+
+    /**
+     * @brief list of substances in a ThermoDataSet
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
+     * @return std::vector<std::string> 
+     */
+    auto substancesInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>;
+
+    /**
+     * @brief list of reactions in a ThermoDataSet
+     * 
+     * @param thermodataset symbol of ThermoDataSet available in ThermoHub server (local or remote)
+     * @return std::vector<std::string> 
+     */
+    auto reactionsInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>;
 
 private:
     struct Impl;
