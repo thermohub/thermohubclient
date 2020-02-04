@@ -19,6 +19,11 @@ conda info -a
 conda devenv
 source activate thermohubclient
 #./conda-install-dependencies.sh
+set -u
+ferr(){
+    echo "$@"
+    exit 1
+}
 mkdir build
 cd build
 python_path=$(which python)
