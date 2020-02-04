@@ -19,11 +19,6 @@ conda info -a
 conda devenv
 source activate thermohubclient
 #./conda-install-dependencies.sh
-set -u
-ferr(){
-    echo "$@"
-    exit 1
-}
 mkdir build
 cd build
 python_path=$(which python)
@@ -33,5 +28,11 @@ cmake -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_LIBDIR=lib \
     ..
+set -u
+ferr(){
+    echo "$@"
+    exit 1
+}
 ninja install
 conda list
+pytest -ra -vv --color=yes .
