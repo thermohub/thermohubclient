@@ -28,11 +28,6 @@ cmake -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_LIBDIR=lib \
     ..
-set -u
-ferr(){
-    echo "$@"
-    exit 1
-}
 ninja install
 conda list
 pytest -ra -vv --color=yes .
