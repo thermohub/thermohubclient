@@ -23,8 +23,8 @@ namespace ThermoHubClient
 
 struct DatabaseClientOptions
 {
-    // number of spaces in the json indentation
-    int json_indent = 2;
+    // number of spaces in the json indentation (in saved file)
+    int json_indent_save = 2;
     // number of spaces in the json indentation (in string returned by the get functions)
     int json_indent_get = -1;
     // filter charge when selecting data by elements
@@ -155,6 +155,13 @@ public:
      * @return std::vector<std::string> 
      */
     auto reactionsInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>;
+
+    /**
+     * @brief set DatabaseClientOptions
+     * 
+     * @param options json_indent_save, json_indent_get, filterCharge, databaseFileSuffix, subsetFileSuffix
+     */
+    auto setOptions(const DatabaseClientOptions &options) -> void;
 
 private:
     struct Impl;

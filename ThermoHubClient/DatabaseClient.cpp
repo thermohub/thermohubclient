@@ -56,6 +56,8 @@ struct DatabaseClient::Impl
 
     DatabaseClientOptions options;
 
+    int json_indent = -1;
+
     // Define call back function
     arangocpp::FetchingDocumentCallback collect_results_fn;
 
@@ -305,7 +307,7 @@ struct DatabaseClient::Impl
         json jThermoDataSet = json::parse(resultThermoDataSet);
         if (elements.size() == 0)
         {
-            resultThermoDataSet = jThermoDataSet.dump(options.json_indent);
+            resultThermoDataSet = jThermoDataSet.dump(json_indent);
             return;
         }
 
@@ -337,7 +339,7 @@ struct DatabaseClient::Impl
         jThermoDataSet.at("substances") = jSubstances;
         jThermoDataSet.at("reactions") = jReactions;
 
-        resultThermoDataSet = jThermoDataSet.dump(options.json_indent);
+        resultThermoDataSet = jThermoDataSet.dump(json_indent);
     }
 
     auto getDatabase(const std::string &thermodataset, const std::vector<std::string> &elements,
@@ -492,13 +494,13 @@ DatabaseClient::~DatabaseClient()
 
 auto DatabaseClient::getDatabase(const std::string &thermodataset) const -> const std::string &
 {
-    pimpl->options.json_indent = pimpl->options.json_indent_get;
+    pimpl->json_indent = pimpl->options.json_indent_get;
     return pimpl->getDatabase(thermodataset, {}, {}, {}, {});
 }
 
 auto DatabaseClient::getDatabaseContainingElements(const std::string &thermodataset, const std::vector<std::string> &elements) const -> const std::string &
 {
-    pimpl->options.json_indent = pimpl->options.json_indent_get;
+    pimpl->json_indent = pimpl->options.json_indent_get;
     return pimpl->getDatabase(thermodataset, elements, {}, {}, {});
 }
 
@@ -507,18 +509,20 @@ auto DatabaseClient::getDatabaseSubset(const std::string &thermodataset, const s
                                        const std::vector<std::string> &classesOfSubstance,
                                        const std::vector<std::string> &aggregateStates) const -> const std::string &
 {
-    pimpl->options.json_indent = pimpl->options.json_indent_get;
+    pimpl->json_indent = pimpl->options.json_indent_get;
     return pimpl->getDatabase(thermodataset, elements, substances, classesOfSubstance, aggregateStates);
 }
 
 auto DatabaseClient::saveDatabase(const std::string &thermodataset) -> void
 {
+    pimpl->json_indent = pimpl->options.json_indent_save;
     pimpl->getDatabase(thermodataset, {}, {}, {}, {});
     pimpl->saveDatabase(thermodataset + pimpl->options.databaseFileSuffix + ".json");
 }
 
 auto DatabaseClient::saveDatabaseContainingElements(const std::string &thermodataset, const std::vector<std::string> &elements) -> void
 {
+    pimpl->json_indent = pimpl->options.json_indent_save;
     pimpl->getDatabase(thermodataset, elements, {}, {}, {});
     pimpl->saveDatabase(thermodataset + pimpl->options.subsetFileSuffix + ".json");
 }
@@ -528,6 +532,7 @@ auto DatabaseClient::saveDatabaseSubset(const std::string &thermodataset, const 
                                         const std::vector<std::string> &classesOfSubstance,
                                         const std::vector<std::string> &aggregateStates) -> void
 {
+    pimpl->json_indent = pimpl->options.json_indent_save;
     pimpl->getDatabase(thermodataset, elements, substances, classesOfSubstance, aggregateStates);
     pimpl->saveDatabase(thermodataset + pimpl->options.subsetFileSuffix + ".json");
 }
@@ -560,6 +565,11 @@ auto DatabaseClient::substanceClassesInThermoDataSet(const std::string &thermoda
 auto DatabaseClient::substanceAggregateStatesInThermoDataSet(const std::string &thermodataset) -> std::vector<std::string>
 {
     return pimpl->substanceAggregateStatesInThermoDataSet(thermodataset);
+}
+
+auto DatabaseClient::setOptions(const DatabaseClientOptions &options) -> void
+{
+    pimpl->options = options;
 }
 
 } // namespace ThermoHubClient
