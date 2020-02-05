@@ -14,6 +14,7 @@ dependencies:
   - curl
   - velocypack
   - jsonarango
+  - pytest
   - python={{ python_version }}
 
 environment:

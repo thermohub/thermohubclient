@@ -5,3 +5,4 @@ conda update -q conda
 conda info -a
 conda devenv
 call activate thermohubclient
+if errorlevel 1 exit 1

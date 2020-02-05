@@ -29,14 +29,41 @@ void exportDatabaseClient(py::module& m)
         .def(py::init<>())
         .def(py::init<const std::string&>())
         .def("getDatabase", (const std::string& (DatabaseClient::*)(const std::string&) const) &DatabaseClient::getDatabase,
-                  "Get database JSON string for a given ThermoDataSet symbol", "thermodataset")
-        // .def("getDatabase", (const std::string& (DatabaseClient::*)(const std::string&, const std::vector<std::string>&) const) &DatabaseClient::getDatabase,
-                //   "Get database JSON string for a given ThermoDataSet symbol and a list of elements", "thermodataset", "elements"/*={}*/)
+                  "Get thermodataset database JSON string for a given ThermoDataSet symbol", "thermodataset")
+        .def("getDatabaseContainingElements", &DatabaseClient::getDatabaseContainingElements,
+                  "Get thermodataset database JSON string for a given ThermoDataSet symbol and a list of elements", "thermodataset", "elements")
+        .def("getDatabaseSubset", &DatabaseClient::getDatabaseSubset,
+                  "Get thermodataset database JSON string for a given ThermoDataSet symbol and optional a list of elements, substances, substance classes, substance aggregate states",
+                  py::arg("thermodataset"), py::arg("elements") = std::vector<std::string>(), py::arg("substances") = std::vector<std::string>(), 
+                  py::arg("classesOfSubstance") = std::vector<std::string>(), py::arg("aggregateStates") = std::vector<std::string>())
         .def("saveDatabase", (void (DatabaseClient::*)(const std::string&)) &DatabaseClient::saveDatabase,
-                  "Save thermodataset database to json file (name of thermodataset)", "thermodataset")
-        // .def("saveDatabase", (void (DatabaseClient::*)(const std::string&, const std::vector<std::string>&)) &DatabaseClient::saveDatabase,
-                //   "Save thermodataset, filtered with a given list of elements to json file (name of thermodataset)", "thermodataset", "elements"/*={}*/)
-        .def("availableThermoDataSets", &DatabaseClient::availableThermoDataSets,"list of available ThermoDataSets")
+                  "Save thermodataset database to JSON file, for a given ThermoDataSet symbol", "thermodataset")
+        .def("saveDatabaseContainingElements", &DatabaseClient::saveDatabaseContainingElements,
+                  "Save thermodataset database to JSON file, for a given ThermoDataSet symbol and a list of elements", "thermodataset", "elements")
+        .def("saveDatabaseSubset", &DatabaseClient::saveDatabaseSubset,
+                  "Save subset thermodataset database to a JSON file for a given ThermoDataSet symbol and optional a list of elements, substances, substance classes, substance aggregate states",
+                  py::arg("thermodataset"), py::arg("elements") = std::vector<std::string>(), py::arg("substances") = std::vector<std::string>(), 
+                  py::arg("classesOfSubstance") = std::vector<std::string>(), py::arg("aggregateStates") = std::vector<std::string>())
+        .def("availableThermoDataSets", &DatabaseClient::availableThermoDataSets,"list of available ThermoDataSets", "thermodataset")
+        .def("substanceClassesInThermoDataSet", &DatabaseClient::substanceClassesInThermoDataSet,"list of substance classes in a ThermoDataSet", "thermodataset")
+        .def("substanceAggregateStatesInThermoDataSet", &DatabaseClient::substanceAggregateStatesInThermoDataSet,"list of substance aggregate states in ThermoDataSet", "thermodataset")
+        .def("elementsInThermoDataSet", &DatabaseClient::elementsInThermoDataSet,"list of elements in a ThermoDataSet", "thermodataset")
+        .def("substancesInThermoDataSet", &DatabaseClient::substancesInThermoDataSet,"list of substances in a ThermoDataSet", "thermodataset")
+        .def("reactionsInThermoDataSet", &DatabaseClient::reactionsInThermoDataSet,"list of reactions in a ThermoDataSet", "thermodataset")        
+        .def("setOptions", &DatabaseClient::setOptions, "set options: json_indent_save, json_indent_get, filterCharge, databaseFileSuffix, subsetFileSuffix")
+        ;
+
+}
+
+void exportDatabaseClientOptions(py::module& m)
+{
+    py::class_<DatabaseClientOptions>(m, "DatabaseClientOptions")
+        .def(py::init<>())
+        .def_readwrite("json_indent_save", &DatabaseClientOptions::json_indent_save, "number of spaces in the json indentation (in the saved json file)")
+        .def_readwrite("json_indent_get", &DatabaseClientOptions::json_indent_get, "number of spaces in the json indentation (in string returned by the get functions)")
+        .def_readwrite("filterCharge", &DatabaseClientOptions::filterCharge, "filter charge when selecting data by elements")
+        .def_readwrite("databaseFileSuffix", &DatabaseClientOptions::databaseFileSuffix, "database filename suffix")
+        .def_readwrite("subsetFileSuffix", &DatabaseClientOptions::subsetFileSuffix, "subset database filename suffix")
         ;
 }
 }
