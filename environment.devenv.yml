@@ -4,14 +4,14 @@ name: thermohubclient
 
 dependencies:
   - gxx_linux-64>=9.3.0  # [linux]
+  - ninja  # [win]
+  - make  # [unix and osx]
   - cmake
-  - ninja # [unix]
-  - make  # [win]
   - git
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
-  - curl # [unix]
+  - curl
   - velocypack
   - jsonarango>=0.3.0
   - pytest
