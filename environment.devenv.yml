@@ -13,7 +13,7 @@ dependencies:
   - nlohmann_json
   - curl
   - velocypack
-  - jsonarango
+  - jsonarango>=0.3.0
   - pytest
   - python={{ python_version }}
 
