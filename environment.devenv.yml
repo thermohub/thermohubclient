@@ -3,17 +3,17 @@ name: thermohubclient
 {% set python_version = os.environ.get("PY_VER", "3.7") %}
 
 dependencies:
-  - gxx_linux-64=7.3.0  # [linux]
-  - cmake>=3.13
-  - ninja # [unix]
-  - make  # [win]
+  - gxx_linux-64>=9.3.0  # [linux]
+  - ninja  # [win]
+  - make  # [unix and osx]
+  - cmake
   - git
   - ccache  # [unix]
   - pybind11
   - nlohmann_json
   - curl
   - velocypack
-  - jsonarango
+  - jsonarango>=0.3.0
   - pytest
   - python={{ python_version }}
 
