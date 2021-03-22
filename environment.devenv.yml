@@ -4,7 +4,7 @@ name: thermohubclient
 
 dependencies:
   - gxx_linux-64>=9.3.0  # [linux]
-  - ninja  # [win]
+  - ninja 
   - make  # [unix and osx]
   - cmake
   - git
