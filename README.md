@@ -4,7 +4,7 @@ A client for retrieving data from ThermoHub database.
 ## Live Demo
 Try thermohubclient jupyter notebook demo in your browser using Binder:
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/tree/thermohubclient/demo-thermohubclient.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/thermohub/thermofun-jupyter/master?urlpath=lab/tree/thermohubclient/demo-thermohubclient.ipynb) 
 
 ## Simple C++ API example
 
