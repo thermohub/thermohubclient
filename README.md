@@ -1,9 +1,6 @@
 # ThermoHubClient
 A client for retrieving data from ThermoHub database.
 
-[![Build Status](https://travis-ci.com/thermohub/thermohubclient.svg?branch=master)](https://travis-ci.com/thermohub/thermohubclient)
-[![Build status](https://ci.appveyor.com/api/projects/status/pbo8cqjhf392ag47?svg=true)](https://ci.appveyor.com/project/gdmiron/thermohubclient-nn1rg)
-
 ## Live Demo
 Try thermohubclient jupyter notebook demo in your browser using Binder:
 
