@@ -1,5 +1,5 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.16)
 
 # Set the name of the project
 project(ThermoHubClient VERSION 0.2.0 LANGUAGES CXX)
