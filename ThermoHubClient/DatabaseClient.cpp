@@ -21,6 +21,7 @@
 #include <regex>
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 // jsonarango
 #include "jsonarango/arangocollection.h"

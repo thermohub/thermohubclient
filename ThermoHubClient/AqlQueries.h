@@ -69,7 +69,7 @@ const std::string aql_thermofun_database_from_thermodataset =
 "            formula:    s.properties.formula, \n "
 "            formula_charge: s.properties.formula_charge, \n "
 "            reaction : reaction_symbol[0], \n "
-"//            mass_per_mole:  s.properties.mass_per_mole, \n "
+"            mass_per_mole:  {values : [s.properties.mass_per_mole] }, \n "
 "            aggregate_state:    s.properties.aggregate_state, \n "
 "            class_:    s.properties.class_, \n "
 "            limitsTP:   s.properties.limitsTP, \n "
